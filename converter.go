@@ -16,6 +16,31 @@ type Config struct {
 
 var config *Config
 
+type DkbCsv struct {
+  Buchungstag               string `csv:"Buchungstag"`
+  Wertstellung              string `csv:"Wertstellung"`
+  Buchungstext              string `csv:"Buchungstext"`
+  AuftraggeberBeguenstigter string `csv:"Auftraggeber / Begünstigter"`
+  Verwendungszweck          string `csv:"Verwendungszweck"`
+  Kontonummer               string `csv:"Kontonummer"`
+  Blz                       string `csv:"BLZ"`
+  BetragEur                 string `csv:"Betrag (EUR)"`
+  GlaeubigerId              string `csv:"Gläubiger-ID"`
+  Mandatsreferenz           string `csv:"Mandatsreferenz"`
+  Kundenreferenz            string `csv:"Kundenreferenz"`
+}
+
+type HomebankCsv struct {
+  Date      string `csv:"date"`
+  Payment   string `csv:"payment"`
+  Info      string `csv:"info"`
+  Payee     string `csv:"payee"`
+  Memo      string `csv:"memo"`
+  Amount    string `csv:"amount"`
+  Category  string `csv:"category"`
+  Tags      string `csv:"tags"`
+}
+
 func init() {
   config = &Config{}
 
