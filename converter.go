@@ -6,7 +6,7 @@ import (
   "log"
   "os"
   "io"
-  "encoding/csv"
+  "github.com/gocarina/gocsv"
 )
 
 type Config struct {
