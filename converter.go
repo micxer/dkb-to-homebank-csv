@@ -6,6 +6,7 @@ import (
   "log"
   "os"
   "io"
+  "encoding/csv"
   "github.com/gocarina/gocsv"
 )
 
@@ -59,32 +60,33 @@ func main() {
   if err != nil {
     log.Fatal(err)
   }
+  defer inputfile.Close()
 
   outputfile, err := os.OpenFile(config.OutputFilename, os.O_RDWR|os.O_CREATE, 0755)
   if err != nil {
     log.Fatal(err)
   }
+  defer outputfile.Close()
 
   convert_file(inputfile, outputfile)
-
-  outputfile.Close()
 }
 
 func convert_file(inputfile *os.File, outputfile *os.File) {
-  r := csv.NewReader(inputfile)
-  r.Comma = ';'
-  r.TrimLeadingSpace = true
+  DkbRecords := []*DkbCsv{}
 
-  for {
-    record, err := r.Read()
-    if err == io.EOF {
-      break
-    }
-    if err != nil {
-      log.Fatal(err)
-    }
+  gocsv.SetCSVReader(func(in io.Reader) *csv.Reader {
+    read := gocsv.DefaultCSVReader(in)
+    read.TrimLeadingSpace = true
+    read.Comma = ';'
+    return read
+  })
 
-    fmt.Println(record["Buchungstag"])
+  if err := gocsv.UnmarshalFile(inputfile, &DkbRecords); err != nil {
+    log.Fatal(err)
+  }
+
+  for _, record := range DkbRecords {
+      fmt.Printf("Buchungstext: %s\n", record.Buchungstext)
   }
 }
 
