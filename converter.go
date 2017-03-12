@@ -73,6 +73,7 @@ func main() {
 
 func convert_file(inputfile *os.File, outputfile *os.File) {
   DkbRecords := []*DkbCsv{}
+  HomebankRecords := []*HomebankCsv{}
 
   gocsv.SetCSVReader(func(in io.Reader) *csv.Reader {
     read := gocsv.DefaultCSVReader(in)
@@ -86,10 +87,18 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
   }
 
   for _, record := range DkbRecords {
-      fmt.Printf("Buchungstext: %s\n", record.Buchungstext)
+    NewRecord := ConvertFromDkb(record)
+    HomebankRecords = append(HomebankRecords, &NewRecord)
+  }
+
+  if err := gocsv.MarshalFile(&HomebankRecords, outputfile); err != nil {
+    log.Fatal(err)
   }
 }
 
-func convert_record() {
+func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
+  result := HomebankCsv{}
+  result.Amount = DkbRecord.BetragEur;
 
+  return result
 }
