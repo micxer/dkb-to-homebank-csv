@@ -111,7 +111,12 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 
 func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
 	result := HomebankCsv{}
+	result.Date = DkbRecord.Wertstellung
+	if DkbRecord.Buchungstext == "KARTENZAHLUNG/-ABRECHNUNG" {
+		result.Payment = "6"
+	}
 	result.Amount = DkbRecord.BetragEur
+	result.Payee = DkbRecord.AuftraggeberBeguenstigter
 
 	return result
 }
