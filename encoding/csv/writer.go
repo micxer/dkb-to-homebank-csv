@@ -8,8 +8,6 @@ import (
 	"bufio"
 	"io"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 )
 
 // A Writer writes records to a CSV encoded file.
@@ -48,15 +46,6 @@ func (w *Writer) Write(record []string) error {
 			if _, err := w.w.WriteRune(w.Comma); err != nil {
 				return err
 			}
-		}
-
-		// If we don't have to have a quoted field then just
-		// write out the field and continue to the next field.
-		if !w.fieldNeedsQuotes(field) {
-			if _, err := w.w.WriteString(field); err != nil {
-				return err
-			}
-			continue
 		}
 
 		if err := w.w.WriteByte('"'); err != nil {
@@ -132,32 +121,4 @@ func (w *Writer) WriteAll(records [][]string) error {
 		}
 	}
 	return w.w.Flush()
-}
-
-// fieldNeedsQuotes reports whether our field must be enclosed in quotes.
-// Fields with a Comma, fields with a quote or newline, and
-// fields which start with a space must be enclosed in quotes.
-// We used to quote empty strings, but we do not anymore (as of Go 1.4).
-// The two representations should be equivalent, but Postgres distinguishes
-// quoted vs non-quoted empty string during database imports, and it has
-// an option to force the quoted behavior for non-quoted CSV but it has
-// no option to force the non-quoted behavior for quoted CSV, making
-// CSV with quoted empty strings strictly less useful.
-// Not quoting the empty string also makes this package match the behavior
-// of Microsoft Excel and Google Drive.
-// For Postgres, quote the data terminating string `\.`.
-func (w *Writer) fieldNeedsQuotes(field string) bool {
-	if w.AlwaysQuote {
-		return true
-	}
-
-	if field == "" {
-		return false
-	}
-	if field == `\.` || strings.ContainsRune(field, w.Comma) || strings.ContainsAny(field, "\"\r\n") {
-		return true
-	}
-
-	r1, _ := utf8.DecodeRuneInString(field)
-	return unicode.IsSpace(r1)
 }
