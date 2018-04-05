@@ -6,6 +6,7 @@
 # Folders
 _obj
 _test
+.DS_Store
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -23,3 +24,6 @@ _testmain.go
 *.test
 *.prof
 converter
+
+# demo data
+*.csv
