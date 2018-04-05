@@ -1,8 +1,8 @@
 package gocsv
 
 import (
+	"../encoding/csv"
 	"bytes"
-	"encoding/csv"
 	"io"
 	"math"
 	"strconv"

@@ -7,8 +7,8 @@
 package gocsv
 
 import (
+	"../encoding/csv"
 	"bytes"
-	"encoding/csv"
 	"fmt"
 	"io"
 	"os"

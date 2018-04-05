@@ -2,7 +2,7 @@ package gocsv
 
 //Wraps around SafeCSVWriter and makes it thread safe.
 import (
-	"encoding/csv"
+	"../encoding/csv"
 	"sync"
 )
 
