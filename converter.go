@@ -8,9 +8,9 @@
 package main
 
 import (
-	"encoding/csv"
+	"./encoding/csv"
+	"./gocsv"
 	"flag"
-	"github.com/gocarina/gocsv"
 	"io"
 	"log"
 	"os"
@@ -96,6 +96,13 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 		NewRecord := ConvertFromDkb(record)
 		HomebankRecords = append(HomebankRecords, &NewRecord)
 	}
+
+	// TODO: Homebank wants to have values enclosed in quotes
+	gocsv.SetCSVWriter(func(out io.Writer) *gocsv.SafeCSVWriter {
+		writer := csv.NewWriter(out)
+		writer.Comma = ';'
+		return gocsv.NewSafeCSVWriter(writer)
+	})
 
 	if err := gocsv.MarshalFile(&HomebankRecords, outputfile); err != nil {
 		log.Fatal(err)
