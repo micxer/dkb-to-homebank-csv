@@ -11,9 +11,11 @@ import (
 	"./encoding/csv"
 	"./gocsv"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -110,13 +112,42 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 }
 
 func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
+
+	paymentTypes := map[string]string{
+		"kartenzahlung/-abrechnung": "6",
+		"abschluss":                 "0",
+		"dauerauftrag":              "7",
+		"gutschrift":                "8",
+		"lastschrift":               "11",
+		"lohn, gehalt, rente":       "4",
+		"online-ueberweisung":       "4",
+		"überweisung":               "4",
+		"wertpapiere":               "4",
+		"zins/dividende":            "4",
+		"auftrag":                   "5",
+		"umbuchung":                 "5",
+	}
+
 	result := HomebankCsv{}
 	result.Date = DkbRecord.Wertstellung
-	if DkbRecord.Buchungstext == "KARTENZAHLUNG/-ABRECHNUNG" {
-		result.Payment = "6"
+	result.Payment = paymentTypes[strings.ToLower(DkbRecord.Buchungstext)]
+	info := ""
+	if DkbRecord.GlaeubigerId != "" {
+		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerId)
 	}
-	result.Amount = DkbRecord.BetragEur
+	if DkbRecord.Mandatsreferenz != "" {
+		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.Mandatsreferenz)
+	}
+	if DkbRecord.Kundenreferenz != "" {
+		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.Kundenreferenz)
+	}
+	result.Info = strings.TrimSpace(info)
+
 	result.Payee = DkbRecord.AuftraggeberBeguenstigter
+	result.Memo = DkbRecord.Verwendungszweck
+	result.Amount = DkbRecord.BetragEur
+	result.Category = ""
+	result.Tags = ""
 
 	return result
 }
