@@ -27,3 +27,6 @@ converter
 
 # demo data
 *.csv
+
+bin
+vendor

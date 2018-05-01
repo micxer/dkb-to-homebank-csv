@@ -136,10 +136,10 @@ func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
 		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerId)
 	}
 	if DkbRecord.Mandatsreferenz != "" {
-		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.Mandatsreferenz)
+		info = info + fmt.Sprintf("Mandatsreferenz: %v\n", DkbRecord.Mandatsreferenz)
 	}
 	if DkbRecord.Kundenreferenz != "" {
-		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.Kundenreferenz)
+		info = info + fmt.Sprintf("Kundenreferenz: %v\n", DkbRecord.Kundenreferenz)
 	}
 	result.Info = strings.TrimSpace(info)
 
