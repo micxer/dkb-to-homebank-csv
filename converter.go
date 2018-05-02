@@ -87,6 +87,8 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 		reader := csv.NewReader(in)
 		reader.TrimLeadingSpace = true
 		reader.Comma = ';'
+		reader.FieldsPerRecord = -1
+		seek_to_start(reader)
 		return reader
 	})
 
@@ -108,6 +110,12 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 
 	if err := gocsv.MarshalFile(&HomebankRecords, outputfile); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func seek_to_start(r *csv.Reader) {
+	for i := 0; i < 4; i++ {
+		_, _ = r.Read()
 	}
 }
 
