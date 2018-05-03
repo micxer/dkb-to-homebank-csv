@@ -12,6 +12,8 @@ import (
 	"./gocsv"
 	"flag"
 	"fmt"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 	"io"
 	"log"
 	"os"
@@ -84,7 +86,7 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 	HomebankRecords := []*HomebankCsv{}
 
 	gocsv.SetCSVReader(func(in io.Reader) gocsv.CSVReader {
-		reader := csv.NewReader(in)
+		reader := csv.NewReader(transform.NewReader(in, charmap.ISO8859_15.NewDecoder()))
 		reader.TrimLeadingSpace = true
 		reader.Comma = ';'
 		reader.FieldsPerRecord = -1
