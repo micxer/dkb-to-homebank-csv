@@ -34,3 +34,36 @@ func TestAbschluss(t *testing.T) {
 		t.Errorf("Expected %v, got %v", HomebankRecord, NewRecord)
 	}
 }
+
+func TestLohnGehaltRente(t *testing.T) {
+	dkbRecord := DkbCsv{
+		Buchungstag:               "24.06.13",
+		Wertstellung:              "24.06.13",
+		Buchungstext:              "LOHN, GEHALT, RENTE",
+		AuftraggeberBeguenstigter: "ACME GMBH",
+		Verwendungszweck:          "LOHN / GEHALT         06/13",
+		Kontonummer:               "0000202051",
+		Blz:                       "12030000",
+		BetragEur:                 "1234,56",
+		GlaeubigerId:              "",
+		Mandatsreferenz:           "",
+		Kundenreferenz:            "",
+	}
+
+	HomebankRecord := HomebankCsv{
+		Date:     "24.06.13",
+		Payment:  "4",
+		Info:     "",
+		Payee:    "ACME GMBH",
+		Memo:     "LOHN / GEHALT         06/13",
+		Amount:   "1234,56",
+		Category: "",
+		Tags:     "",
+	}
+
+	NewRecord := ConvertFromDkb(&dkbRecord)
+
+	if NewRecord != HomebankRecord {
+		t.Errorf("Expected %v, got %v", HomebankRecord, NewRecord)
+	}
+}
