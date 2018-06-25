@@ -8,10 +8,10 @@
 package main
 
 import (
-	"./encoding/csv"
-	"./gocsv"
+	"encoding/csv"
 	"flag"
 	"fmt"
+	"github.com/gocarina/gocsv"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
 	"io"
