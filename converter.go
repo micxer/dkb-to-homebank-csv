@@ -124,18 +124,21 @@ func seek_to_start(r *csv.Reader) {
 func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
 
 	paymentTypes := map[string]string{
-		"kartenzahlung/-abrechnung": "6",
 		"abschluss":                 "0",
-		"dauerauftrag":              "7",
-		"gutschrift":                "8",
-		"lastschrift":               "11",
 		"lohn, gehalt, rente":       "4",
 		"online-ueberweisung":       "4",
 		"überweisung":               "4",
+		"rücküberweisung":           "4",
 		"wertpapiere":               "4",
 		"zins/dividende":            "4",
 		"auftrag":                   "5",
 		"umbuchung":                 "5",
+		"kartenzahlung/-abrechnung": "6",
+		"sepa-elv-lastschrift":      "6",
+		"dauerauftrag":              "7",
+		"gutschrift":                "8",
+		"lastschrift":               "11",
+		"folgelastschrift":          "11",
 	}
 
 	result := HomebankCsv{}
