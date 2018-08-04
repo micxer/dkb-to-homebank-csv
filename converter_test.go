@@ -1,34 +1,17 @@
 package main
 
-import "testing"
+import (
+	"encoding/csv"
+
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
+	"os"
+	"testing"
+)
 
 func TestAbschluss(t *testing.T) {
-	dkbRecord := DkbCsv{
-		Buchungstag:               "30.12.13",
-		Wertstellung:              "01.01.14",
-		Buchungstext:              "ABSCHLUSS",
-		AuftraggeberBeguenstigter: "",
-		Verwendungszweck:          "Abrechnung 30.12.2013      siehe Anlage<br />Abrechnung 30.12.2013<br />Information zur Abrechnung<br />Kontostand am 30.12.2013                                        4.321,12 +<br />Abrechnungszeitraum vom 01.10.2013 bis 31.12.2013<br />Zinsen für Guthaben                                                  1,23+<br /> 0,2000 v.H. Haben-Zins bis 30.12.2013<br />Abrechnung 31.12.2013                                                1,23+<br />Sollzinssätze am 30.12.2013<br /> 7,9000 v.H. für Dispositionskredit<br />(aktuelle Kreditlinie       1.000,00)<br />12,0000 v.H. für Kontoüberziehungen<br />über die Kreditlinie hinaus<br />Kontostand/Rechnungsabschluss am 30.12.2013                     1.234,56 +<br />Rechnungsnummer: 20131230-BY111-00001234567",
-		Kontonummer:               "0000202051",
-		Blz:                       "12030000",
-		BetragEur:                 "1,23",
-		GlaeubigerId:              "",
-		Mandatsreferenz:           "",
-		Kundenreferenz:            "",
-	}
-
-	HomebankRecord := HomebankCsv{
-		Date:     "01.01.14",
-		Payment:  "0",
-		Info:     "",
-		Payee:    "",
-		Memo:     "Abrechnung 30.12.2013      siehe Anlage<br />Abrechnung 30.12.2013<br />Information zur Abrechnung<br />Kontostand am 30.12.2013                                        4.321,12 +<br />Abrechnungszeitraum vom 01.10.2013 bis 31.12.2013<br />Zinsen für Guthaben                                                  1,23+<br /> 0,2000 v.H. Haben-Zins bis 30.12.2013<br />Abrechnung 31.12.2013                                                1,23+<br />Sollzinssätze am 30.12.2013<br /> 7,9000 v.H. für Dispositionskredit<br />(aktuelle Kreditlinie       1.000,00)<br />12,0000 v.H. für Kontoüberziehungen<br />über die Kreditlinie hinaus<br />Kontostand/Rechnungsabschluss am 30.12.2013                     1.234,56 +<br />Rechnungsnummer: 20131230-BY111-00001234567",
-		Amount:   "1,23",
-		Category: "",
-		Tags:     "",
-	}
-
-	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
+	dkbRecord, homebankRecord := LoadCsv(t, "abschluss")
+	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
 func TestLohnGehaltRente(t *testing.T) {
@@ -95,4 +78,56 @@ func convertRecordAndVerify(t *testing.T, dkbRecord DkbCsv, homebankRecord Homeb
 	if NewRecord != homebankRecord {
 		t.Errorf("Expected %v, got %v", homebankRecord, NewRecord)
 	}
+}
+
+func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
+	f, err := os.Open("testdata/" + filename + "_dkb.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	reader := csv.NewReader(transform.NewReader(f, charmap.ISO8859_15.NewDecoder()))
+	reader.Comma = ';'
+	rows, err := reader.ReadAll()
+	f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dkbRecord := DkbCsv{}
+
+	dkbRecord.Buchungstag = rows[0][0]
+	dkbRecord.Wertstellung = rows[0][1]
+	dkbRecord.Buchungstext = rows[0][2]
+	dkbRecord.AuftraggeberBeguenstigter = rows[0][3]
+	dkbRecord.Verwendungszweck = rows[0][4]
+	dkbRecord.Kontonummer = rows[0][5]
+	dkbRecord.Blz = rows[0][6]
+	dkbRecord.BetragEur = rows[0][7]
+	dkbRecord.GlaeubigerId = rows[0][8]
+	dkbRecord.Mandatsreferenz = rows[0][9]
+	dkbRecord.Kundenreferenz = rows[0][10]
+
+	f, err = os.Open("testdata/" + filename + "_homebank.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	reader = csv.NewReader(transform.NewReader(f, charmap.ISO8859_15.NewDecoder()))
+	reader.Comma = ';'
+	rows, err = reader.ReadAll()
+	f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	homebankRecord := HomebankCsv{}
+
+	homebankRecord.Date = rows[0][0]
+	homebankRecord.Payment = rows[0][1]
+	homebankRecord.Info = rows[0][2]
+	homebankRecord.Payee = rows[0][3]
+	homebankRecord.Memo = rows[0][4]
+	homebankRecord.Amount = rows[0][5]
+	homebankRecord.Category = rows[0][6]
+	homebankRecord.Tags = rows[0][7]
+
+
+	return dkbRecord, homebankRecord
 }
