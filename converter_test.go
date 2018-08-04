@@ -60,6 +60,35 @@ func TestLohnGehaltRente(t *testing.T) {
 	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
 }
 
+func TestDauerauftrag(t *testing.T) {
+	dkbRecord := DkbCsv{
+		Buchungstag:               "01.10.13",
+		Wertstellung:              "01.10.13",
+		Buchungstext:              "DAUERAUFTRAG",
+		AuftraggeberBeguenstigter: "RUNDFUNKGEBUEHRENABWICKLUNG",
+		Verwendungszweck:          "",
+		Kontonummer:               "2024100",
+		Blz:                       "70050000",
+		BetragEur:                 "-51,84",
+		GlaeubigerId:              "",
+		Mandatsreferenz:           "",
+		Kundenreferenz:            "",
+	}
+
+	HomebankRecord := HomebankCsv{
+		Date:     "01.10.13",
+		Payment:  "7",
+		Info:     "",
+		Payee:    "RUNDFUNKGEBUEHRENABWICKLUNG",
+		Memo:     "",
+		Amount:   "-51,84",
+		Category: "",
+		Tags:     "",
+	}
+
+	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
+}
+
 func convertRecordAndVerify(t *testing.T, dkbRecord DkbCsv, homebankRecord HomebankCsv) {
 	NewRecord := ConvertFromDkb(&dkbRecord)
 
