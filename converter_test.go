@@ -28,11 +28,7 @@ func TestAbschluss(t *testing.T) {
 		Tags:     "",
 	}
 
-	NewRecord := ConvertFromDkb(&dkbRecord)
-
-	if NewRecord != HomebankRecord {
-		t.Errorf("Expected %v, got %v", HomebankRecord, NewRecord)
-	}
+	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
 }
 
 func TestLohnGehaltRente(t *testing.T) {
@@ -61,9 +57,13 @@ func TestLohnGehaltRente(t *testing.T) {
 		Tags:     "",
 	}
 
+	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
+}
+
+func convertRecordAndVerify(t *testing.T, dkbRecord DkbCsv, homebankRecord HomebankCsv) {
 	NewRecord := ConvertFromDkb(&dkbRecord)
 
-	if NewRecord != HomebankRecord {
-		t.Errorf("Expected %v, got %v", HomebankRecord, NewRecord)
+	if NewRecord != homebankRecord {
+		t.Errorf("Expected %v, got %v", homebankRecord, NewRecord)
 	}
 }
