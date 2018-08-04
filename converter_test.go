@@ -15,61 +15,13 @@ func TestAbschluss(t *testing.T) {
 }
 
 func TestLohnGehaltRente(t *testing.T) {
-	dkbRecord := DkbCsv{
-		Buchungstag:               "24.06.13",
-		Wertstellung:              "24.06.13",
-		Buchungstext:              "LOHN, GEHALT, RENTE",
-		AuftraggeberBeguenstigter: "ACME GMBH",
-		Verwendungszweck:          "LOHN / GEHALT         06/13",
-		Kontonummer:               "0000202051",
-		Blz:                       "12030000",
-		BetragEur:                 "1234,56",
-		GlaeubigerId:              "",
-		Mandatsreferenz:           "",
-		Kundenreferenz:            "",
-	}
-
-	HomebankRecord := HomebankCsv{
-		Date:     "24.06.13",
-		Payment:  "4",
-		Info:     "",
-		Payee:    "ACME GMBH",
-		Memo:     "LOHN / GEHALT         06/13",
-		Amount:   "1234,56",
-		Category: "",
-		Tags:     "",
-	}
-
-	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
+	dkbRecord, homebankRecord := LoadCsv(t, "lohn_gehalt_rente")
+	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
 func TestDauerauftrag(t *testing.T) {
-	dkbRecord := DkbCsv{
-		Buchungstag:               "01.10.13",
-		Wertstellung:              "01.10.13",
-		Buchungstext:              "DAUERAUFTRAG",
-		AuftraggeberBeguenstigter: "RUNDFUNKGEBUEHRENABWICKLUNG",
-		Verwendungszweck:          "",
-		Kontonummer:               "2024100",
-		Blz:                       "70050000",
-		BetragEur:                 "-51,84",
-		GlaeubigerId:              "",
-		Mandatsreferenz:           "",
-		Kundenreferenz:            "",
-	}
-
-	HomebankRecord := HomebankCsv{
-		Date:     "01.10.13",
-		Payment:  "7",
-		Info:     "",
-		Payee:    "RUNDFUNKGEBUEHRENABWICKLUNG",
-		Memo:     "",
-		Amount:   "-51,84",
-		Category: "",
-		Tags:     "",
-	}
-
-	convertRecordAndVerify(t, dkbRecord, HomebankRecord)
+	dkbRecord, homebankRecord := LoadCsv(t, "dauerauftrag")
+	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
 func convertRecordAndVerify(t *testing.T, dkbRecord DkbCsv, homebankRecord HomebankCsv) {
