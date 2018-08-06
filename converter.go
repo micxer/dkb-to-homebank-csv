@@ -11,23 +11,24 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"github.com/gocarina/gocsv"
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/transform"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/gocarina/gocsv"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
-type Config struct {
+type configuration struct {
 	InputFilename  string
 	OutputFilename string
 }
 
-var config *Config
+var config *configuration
 
-type DkbCsv struct {
+type dkbCsv struct {
 	Buchungstag               string `csv:"Buchungstag"`
 	Wertstellung              string `csv:"Wertstellung"`
 	Buchungstext              string `csv:"Buchungstext"`
@@ -36,12 +37,12 @@ type DkbCsv struct {
 	Kontonummer               string `csv:"Kontonummer"`
 	Blz                       string `csv:"BLZ"`
 	BetragEur                 string `csv:"Betrag (EUR)"`
-	GlaeubigerId              string `csv:"Gläubiger-ID"`
+	GlaeubigerID              string `csv:"Gläubiger-ID"`
 	Mandatsreferenz           string `csv:"Mandatsreferenz"`
 	Kundenreferenz            string `csv:"Kundenreferenz"`
 }
 
-type HomebankCsv struct {
+type homebankCsv struct {
 	Date     string `csv:"date"`
 	Payment  string `csv:"payment"`
 	Info     string `csv:"info"`
@@ -53,7 +54,7 @@ type HomebankCsv struct {
 }
 
 func init() {
-	config = &Config{}
+	config = &configuration{}
 
 	flag.StringVar(&config.InputFilename, "input", "", "Input CSV file in DKB format")
 	flag.StringVar(&config.OutputFilename, "output", "", "Output CSV file in Homebank format")
@@ -78,19 +79,19 @@ func main() {
 	}
 	defer outputfile.Close()
 
-	convert_file(inputfile, outputfile)
+	convertFile(inputfile, outputfile)
 }
 
-func convert_file(inputfile *os.File, outputfile *os.File) {
-	DkbRecords := []*DkbCsv{}
-	HomebankRecords := []*HomebankCsv{}
+func convertFile(inputfile *os.File, outputfile *os.File) {
+	DkbRecords := []*dkbCsv{}
+	HomebankRecords := []*homebankCsv{}
 
 	gocsv.SetCSVReader(func(in io.Reader) gocsv.CSVReader {
 		reader := csv.NewReader(transform.NewReader(in, charmap.ISO8859_15.NewDecoder()))
 		reader.TrimLeadingSpace = true
 		reader.Comma = ';'
 		reader.FieldsPerRecord = -1
-		seek_to_start(reader)
+		seekToStart(reader)
 		return reader
 	})
 
@@ -99,7 +100,7 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 	}
 
 	for _, record := range DkbRecords {
-		NewRecord := ConvertFromDkb(record)
+		NewRecord := convertFromDkb(record)
 		HomebankRecords = append(HomebankRecords, &NewRecord)
 	}
 
@@ -115,13 +116,13 @@ func convert_file(inputfile *os.File, outputfile *os.File) {
 	}
 }
 
-func seek_to_start(r *csv.Reader) {
+func seekToStart(r *csv.Reader) {
 	for i := 0; i < 4; i++ {
 		_, _ = r.Read()
 	}
 }
 
-func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
+func convertFromDkb(DkbRecord *dkbCsv) homebankCsv {
 
 	paymentTypes := map[string]string{
 		"abschluss":                 "0",
@@ -141,12 +142,12 @@ func ConvertFromDkb(DkbRecord *DkbCsv) HomebankCsv {
 		"folgelastschrift":          "11",
 	}
 
-	result := HomebankCsv{}
+	result := homebankCsv{}
 	result.Date = DkbRecord.Wertstellung
 	result.Payment = paymentTypes[strings.ToLower(DkbRecord.Buchungstext)]
 	info := ""
-	if DkbRecord.GlaeubigerId != "" {
-		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerId)
+	if DkbRecord.GlaeubigerID != "" {
+		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerID)
 	}
 	if DkbRecord.Mandatsreferenz != "" {
 		info = info + fmt.Sprintf("Mandatsreferenz: %v\n", DkbRecord.Mandatsreferenz)

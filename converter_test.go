@@ -3,36 +3,37 @@ package main
 import (
 	"encoding/csv"
 
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/transform"
 	"os"
 	"testing"
+
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 func TestAbschluss(t *testing.T) {
-	dkbRecord, homebankRecord := LoadCsv(t, "abschluss")
+	dkbRecord, homebankRecord := loadCsv(t, "abschluss")
 	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
 func TestLohnGehaltRente(t *testing.T) {
-	dkbRecord, homebankRecord := LoadCsv(t, "lohn_gehalt_rente")
+	dkbRecord, homebankRecord := loadCsv(t, "lohn_gehalt_rente")
 	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
 func TestDauerauftrag(t *testing.T) {
-	dkbRecord, homebankRecord := LoadCsv(t, "dauerauftrag")
+	dkbRecord, homebankRecord := loadCsv(t, "dauerauftrag")
 	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
-func convertRecordAndVerify(t *testing.T, dkbRecord DkbCsv, homebankRecord HomebankCsv) {
-	NewRecord := ConvertFromDkb(&dkbRecord)
+func convertRecordAndVerify(t *testing.T, dkbRecord dkbCsv, homebankRecord homebankCsv) {
+	NewRecord := convertFromDkb(&dkbRecord)
 
 	if NewRecord != homebankRecord {
 		t.Errorf("Expected %v, got %v", homebankRecord, NewRecord)
 	}
 }
 
-func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
+func loadCsv(t *testing.T, filename string) (dkbCsv, homebankCsv) {
 	f, err := os.Open("testdata/" + filename + "_dkb.csv")
 	if err != nil {
 		t.Fatal(err)
@@ -44,7 +45,7 @@ func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dkbRecord := DkbCsv{}
+	dkbRecord := dkbCsv{}
 
 	dkbRecord.Buchungstag = rows[0][0]
 	dkbRecord.Wertstellung = rows[0][1]
@@ -54,7 +55,7 @@ func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
 	dkbRecord.Kontonummer = rows[0][5]
 	dkbRecord.Blz = rows[0][6]
 	dkbRecord.BetragEur = rows[0][7]
-	dkbRecord.GlaeubigerId = rows[0][8]
+	dkbRecord.GlaeubigerID = rows[0][8]
 	dkbRecord.Mandatsreferenz = rows[0][9]
 	dkbRecord.Kundenreferenz = rows[0][10]
 
@@ -69,7 +70,7 @@ func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	homebankRecord := HomebankCsv{}
+	homebankRecord := homebankCsv{}
 
 	homebankRecord.Date = rows[0][0]
 	homebankRecord.Payment = rows[0][1]
@@ -79,7 +80,6 @@ func LoadCsv(t *testing.T, filename string) (DkbCsv, HomebankCsv) {
 	homebankRecord.Amount = rows[0][5]
 	homebankRecord.Category = rows[0][6]
 	homebankRecord.Tags = rows[0][7]
-
 
 	return dkbRecord, homebankRecord
 }
