@@ -146,6 +146,9 @@ func convertFromDkb(DkbRecord *dkbCsv) homebankCsv {
 	result.Date = DkbRecord.Wertstellung
 	result.Payment = paymentTypes[strings.ToLower(DkbRecord.Buchungstext)]
 	info := ""
+	if DkbRecord.Kontonummer != "" {
+		info = info + fmt.Sprintf("Konto-Nr.: %v, BLZ: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+	}
 	if DkbRecord.GlaeubigerID != "" {
 		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerID)
 	}
