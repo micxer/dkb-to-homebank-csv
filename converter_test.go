@@ -30,6 +30,11 @@ func TestLastschrift(t *testing.T) {
 	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
+func TestAuftrag(t *testing.T) {
+	dkbRecord, homebankRecord := loadCsv(t, "auftrag")
+	convertRecordAndVerify(t, dkbRecord, homebankRecord)
+}
+
 func convertRecordAndVerify(t *testing.T, dkbRecord dkbCsv, homebankRecord homebankCsv) {
 	NewRecord := convertFromDkb(&dkbRecord)
 
