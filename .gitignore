@@ -26,7 +26,7 @@ _testmain.go
 converter
 
 # demo data
-*.csv
+output.csv
 
 bin
 vendor
