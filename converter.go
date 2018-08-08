@@ -14,6 +14,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gocarina/gocsv"
@@ -147,7 +148,12 @@ func convertFromDkb(DkbRecord *dkbCsv) homebankCsv {
 	result.Payment = paymentTypes[strings.ToLower(DkbRecord.Buchungstext)]
 	info := ""
 	if DkbRecord.Kontonummer != "" {
-		info = info + fmt.Sprintf("Konto-Nr.: %v, BLZ: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+		_, err := strconv.ParseFloat(DkbRecord.Kontonummer, 64)
+		if err != nil {
+			info = info + fmt.Sprintf("IBAN: %v, BIC: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+		} else {
+			info = info + fmt.Sprintf("Konto-Nr.: %v, BLZ: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+		}
 	}
 	if DkbRecord.GlaeubigerID != "" {
 		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerID)
