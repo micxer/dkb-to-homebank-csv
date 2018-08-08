@@ -35,6 +35,11 @@ func TestAuftrag(t *testing.T) {
 	convertRecordAndVerify(t, dkbRecord, homebankRecord)
 }
 
+func TestGutschrift(t *testing.T) {
+	dkbRecord, homebankRecord := loadCsvSingleRow(t, "gutschrift")
+	convertRecordAndVerify(t, dkbRecord, homebankRecord)
+}
+
 func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	dkbRecords, homebankRecords := loadCsv(t, "ibankontonr")
 	for index, dkbRecord := range dkbRecords {
