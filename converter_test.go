@@ -94,3 +94,21 @@ func assertPaymentType(t *testing.T, paymentString string, expectedValue string)
 		t.Errorf("Expected %v, got %v", expectedValue, homebankRecord.Payment)
 	}
 }
+
+func TestCategoryEmpty(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Payment != "" {
+		t.Errorf("Expected empty string, got %v", homebankRecord.Category)
+	}
+}
+
+func TestTagsEmpty(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Tags != "" {
+		t.Errorf("Expected empty string, got %v", homebankRecord.Tags)
+	}
+}
