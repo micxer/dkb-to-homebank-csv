@@ -112,3 +112,33 @@ func TestTagsEmpty(t *testing.T) {
 		t.Errorf("Expected empty string, got %v", homebankRecord.Tags)
 	}
 }
+
+func TestAmount(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	dkbRecord.BetragEur = "12,34"
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Amount != "12,34" {
+		t.Errorf("Expected %v, got %v", dkbRecord.BetragEur, homebankRecord.Amount)
+	}
+}
+
+func TestMemo(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	dkbRecord.Verwendungszweck = "This is a test!"
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Memo != dkbRecord.Verwendungszweck {
+		t.Errorf("Expected %v, got %v", dkbRecord.Verwendungszweck, homebankRecord.Memo)
+	}
+}
+
+func TestPayee(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	dkbRecord.AuftraggeberBeguenstigter = "The Shop"
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Payee != dkbRecord.AuftraggeberBeguenstigter {
+		t.Errorf("Expected %v, got %v", dkbRecord.AuftraggeberBeguenstigter, homebankRecord.Payee)
+	}
+}
