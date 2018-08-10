@@ -64,6 +64,17 @@ func TestFolgeLastschrift(t *testing.T) {
 	assertPaymentType(t, "FOLGELASTSCHRIFT", "11")
 }
 
+func assertPaymentType(t *testing.T, paymentString string, expectedValue string) {
+	dkbRecord := dkbCsv{}
+	dkbRecord.Buchungstext = paymentString
+
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Payment != expectedValue {
+		t.Errorf("Expected %v, got %v", expectedValue, homebankRecord.Payment)
+	}
+}
+
 func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	dkbRecord := dkbCsv{}
 	dkbRecord.Kontonummer = "0000202051"
@@ -81,17 +92,6 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 
 	if !strings.Contains(homebankRecord.Info, "IBAN: DE02120300000000202051, BIC: BYLADEM1001") {
 		t.Errorf("Expected %v, got %v", "IBAN: DE02120300000000202051, BIC: BYLADEM1001", homebankRecord.Payment)
-	}
-}
-
-func assertPaymentType(t *testing.T, paymentString string, expectedValue string) {
-	dkbRecord := dkbCsv{}
-	dkbRecord.Buchungstext = paymentString
-
-	homebankRecord := convertFromDkb(&dkbRecord)
-
-	if homebankRecord.Payment != expectedValue {
-		t.Errorf("Expected %v, got %v", expectedValue, homebankRecord.Payment)
 	}
 }
 
