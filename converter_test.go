@@ -80,7 +80,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	homebankRecord = convertFromDkb(&dkbRecord)
 
 	if !strings.Contains(homebankRecord.Info, "IBAN: DE02120300000000202051, BIC: BYLADEM1001") {
-		t.Errorf("Expected %v, got %v", "IBSN: 000020DE021203000000002020512051, BIC: BYLADEM1001", homebankRecord.Payment)
+		t.Errorf("Expected %v, got %v", "IBAN: DE02120300000000202051, BIC: BYLADEM1001", homebankRecord.Payment)
 	}
 }
 
