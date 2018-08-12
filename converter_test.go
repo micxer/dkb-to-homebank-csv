@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+	"os"
 	"strings"
 	"testing"
 )
@@ -183,5 +185,27 @@ func TestPayee(t *testing.T) {
 
 	if homebankRecord.Payee != dkbRecord.AuftraggeberBeguenstigter {
 		t.Errorf("Expected %v, got %v", dkbRecord.AuftraggeberBeguenstigter, homebankRecord.Payee)
+	}
+}
+
+func TestDetectFiletype(t *testing.T) {
+	inputfile, err := os.Open("test_csvs/credit_test.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer inputfile.Close()
+	filetype := detectFiletype(inputfile)
+	if filetype != "CREDIT_CSV" {
+		t.Errorf("Expected %v, got %v", "CREDIT_CSV", filetype)
+	}
+
+	inputfile, err = os.Open("test_csvs/giro_test.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer inputfile.Close()
+	filetype = detectFiletype(inputfile)
+	if filetype != "GIRO_CSV" {
+		t.Errorf("Expected %v, got %v", "GIRO_CSV", filetype)
 	}
 }

@@ -83,6 +83,23 @@ func main() {
 	convertFile(inputfile, outputfile)
 }
 
+func detectFiletype(inputfile *os.File) string {
+	reader := csv.NewReader(transform.NewReader(inputfile, charmap.ISO8859_15.NewDecoder()))
+	reader.Comma = ';'
+	record, err := reader.Read()
+	if err == io.EOF || err != nil {
+		log.Fatal(err)
+	}
+	if record[0] == "Kreditkarte:" {
+		return "CREDIT_CSV"
+	}
+	if record[0] == "Kontonummer:" {
+		return "GIRO_CSV"
+	}
+
+	return "FILETYPE_UNKNOWN"
+}
+
 func convertFile(inputfile *os.File, outputfile *os.File) {
 	DkbRecords := []*dkbGiroCsv{}
 	HomebankRecords := []*homebankCsv{}
