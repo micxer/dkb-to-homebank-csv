@@ -85,6 +85,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	if !strings.Contains(homebankRecord.Info, "Konto-Nr.: 0000202051, BLZ: 12030000") {
 		t.Errorf("Expected %v, got %v", "Konto-Nr.: 0000202051, BLZ: 12030000", homebankRecord.Payment)
 	}
+
 	dkbRecord.Kontonummer = "DE02120300000000202051"
 	dkbRecord.Blz = "BYLADEM1001"
 
@@ -92,6 +93,48 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 
 	if !strings.Contains(homebankRecord.Info, "IBAN: DE02120300000000202051, BIC: BYLADEM1001") {
 		t.Errorf("Expected %v, got %v", "IBAN: DE02120300000000202051, BIC: BYLADEM1001", homebankRecord.Payment)
+	}
+}
+
+func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
+	dkbRecord := dkbCsv{}
+	dkbRecord.GlaeubigerID = "DE0012345678"
+	dkbRecord.Kundenreferenz = "00012345"
+
+	homebankRecord := convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nKundenreferenz: 00012345" {
+		t.Errorf(
+			"Expected %v, got %v",
+			"Gläubiger-ID: DE0012345678\nKundenreferenz: 00012345\n",
+			homebankRecord.Info,
+		)
+	}
+
+	dkbRecord.GlaeubigerID = ""
+	dkbRecord.Mandatsreferenz = "MAN007"
+	dkbRecord.Kundenreferenz = "00012345"
+
+	homebankRecord = convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Info != "Mandatsreferenz: MAN007\nKundenreferenz: 00012345" {
+		t.Errorf(
+			"Expected %v, got %v",
+			"Mandatsreferenz: MAN007\nKundenreferenz: 00012345",
+			homebankRecord.Info,
+		)
+	}
+
+	dkbRecord.GlaeubigerID = "DE0012345678"
+
+	homebankRecord = convertFromDkb(&dkbRecord)
+
+	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nMandatsreferenz: MAN007\nKundenreferenz: 00012345" {
+		t.Errorf(
+			"Expected %v, got %v",
+			"Gläubiger-ID: DE0012345678\nMandatsreferenz: MAN007\nKundenreferenz: 00012345",
+			homebankRecord.Info,
+		)
 	}
 }
 
