@@ -65,7 +65,7 @@ func TestFolgeLastschrift(t *testing.T) {
 }
 
 func assertPaymentType(t *testing.T, paymentString string, expectedValue string) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.Buchungstext = paymentString
 
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
@@ -76,7 +76,7 @@ func assertPaymentType(t *testing.T, paymentString string, expectedValue string)
 }
 
 func TestIbanBicVsKontoNrBlz(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.Kontonummer = "0000202051"
 	dkbRecord.Blz = "12030000"
 
@@ -97,7 +97,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 }
 
 func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.GlaeubigerID = "DE0012345678"
 	dkbRecord.Kundenreferenz = "00012345"
 
@@ -139,7 +139,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 }
 
 func TestCategoryEmpty(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Payment != "" {
@@ -148,7 +148,7 @@ func TestCategoryEmpty(t *testing.T) {
 }
 
 func TestTagsEmpty(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Tags != "" {
@@ -157,7 +157,7 @@ func TestTagsEmpty(t *testing.T) {
 }
 
 func TestAmount(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.BetragEur = "12,34"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
@@ -167,7 +167,7 @@ func TestAmount(t *testing.T) {
 }
 
 func TestMemo(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.Verwendungszweck = "This is a test!"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
@@ -177,7 +177,7 @@ func TestMemo(t *testing.T) {
 }
 
 func TestPayee(t *testing.T) {
-	dkbRecord := dkbCsv{}
+	dkbRecord := dkbGiroCsv{}
 	dkbRecord.AuftraggeberBeguenstigter = "The Shop"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 

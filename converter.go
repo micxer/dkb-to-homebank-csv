@@ -29,7 +29,7 @@ type configuration struct {
 
 var config *configuration
 
-type dkbCsv struct {
+type dkbGiroCsv struct {
 	Buchungstag               string `csv:"Buchungstag"`
 	Wertstellung              string `csv:"Wertstellung"`
 	Buchungstext              string `csv:"Buchungstext"`
@@ -84,7 +84,7 @@ func main() {
 }
 
 func convertFile(inputfile *os.File, outputfile *os.File) {
-	DkbRecords := []*dkbCsv{}
+	DkbRecords := []*dkbGiroCsv{}
 	HomebankRecords := []*homebankCsv{}
 
 	gocsv.SetCSVReader(func(in io.Reader) gocsv.CSVReader {
@@ -123,7 +123,7 @@ func seekToStart(r *csv.Reader) {
 	}
 }
 
-func convertFromDkbGiro(DkbRecord *dkbCsv) homebankCsv {
+func convertFromDkbGiro(DkbRecord *dkbGiroCsv) homebankCsv {
 
 	paymentTypes := map[string]string{
 		"abschluss":                 "0",
