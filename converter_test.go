@@ -68,7 +68,7 @@ func assertPaymentType(t *testing.T, paymentString string, expectedValue string)
 	dkbRecord := dkbCsv{}
 	dkbRecord.Buchungstext = paymentString
 
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Payment != expectedValue {
 		t.Errorf("Expected %v, got %v", expectedValue, homebankRecord.Payment)
@@ -80,7 +80,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	dkbRecord.Kontonummer = "0000202051"
 	dkbRecord.Blz = "12030000"
 
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if !strings.Contains(homebankRecord.Info, "Konto-Nr.: 0000202051, BLZ: 12030000") {
 		t.Errorf("Expected %v, got %v", "Konto-Nr.: 0000202051, BLZ: 12030000", homebankRecord.Payment)
@@ -89,7 +89,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	dkbRecord.Kontonummer = "DE02120300000000202051"
 	dkbRecord.Blz = "BYLADEM1001"
 
-	homebankRecord = convertFromDkb(&dkbRecord)
+	homebankRecord = convertFromDkbGiro(&dkbRecord)
 
 	if !strings.Contains(homebankRecord.Info, "IBAN: DE02120300000000202051, BIC: BYLADEM1001") {
 		t.Errorf("Expected %v, got %v", "IBAN: DE02120300000000202051, BIC: BYLADEM1001", homebankRecord.Payment)
@@ -101,7 +101,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 	dkbRecord.GlaeubigerID = "DE0012345678"
 	dkbRecord.Kundenreferenz = "00012345"
 
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nKundenreferenz: 00012345" {
 		t.Errorf(
@@ -115,7 +115,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 	dkbRecord.Mandatsreferenz = "MAN007"
 	dkbRecord.Kundenreferenz = "00012345"
 
-	homebankRecord = convertFromDkb(&dkbRecord)
+	homebankRecord = convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Info != "Mandatsreferenz: MAN007\nKundenreferenz: 00012345" {
 		t.Errorf(
@@ -127,7 +127,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 
 	dkbRecord.GlaeubigerID = "DE0012345678"
 
-	homebankRecord = convertFromDkb(&dkbRecord)
+	homebankRecord = convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nMandatsreferenz: MAN007\nKundenreferenz: 00012345" {
 		t.Errorf(
@@ -140,7 +140,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 
 func TestCategoryEmpty(t *testing.T) {
 	dkbRecord := dkbCsv{}
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Payment != "" {
 		t.Errorf("Expected empty string, got %v", homebankRecord.Category)
@@ -149,7 +149,7 @@ func TestCategoryEmpty(t *testing.T) {
 
 func TestTagsEmpty(t *testing.T) {
 	dkbRecord := dkbCsv{}
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Tags != "" {
 		t.Errorf("Expected empty string, got %v", homebankRecord.Tags)
@@ -159,7 +159,7 @@ func TestTagsEmpty(t *testing.T) {
 func TestAmount(t *testing.T) {
 	dkbRecord := dkbCsv{}
 	dkbRecord.BetragEur = "12,34"
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Amount != "12,34" {
 		t.Errorf("Expected %v, got %v", dkbRecord.BetragEur, homebankRecord.Amount)
@@ -169,7 +169,7 @@ func TestAmount(t *testing.T) {
 func TestMemo(t *testing.T) {
 	dkbRecord := dkbCsv{}
 	dkbRecord.Verwendungszweck = "This is a test!"
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Memo != dkbRecord.Verwendungszweck {
 		t.Errorf("Expected %v, got %v", dkbRecord.Verwendungszweck, homebankRecord.Memo)
@@ -179,7 +179,7 @@ func TestMemo(t *testing.T) {
 func TestPayee(t *testing.T) {
 	dkbRecord := dkbCsv{}
 	dkbRecord.AuftraggeberBeguenstigter = "The Shop"
-	homebankRecord := convertFromDkb(&dkbRecord)
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
 	if homebankRecord.Payee != dkbRecord.AuftraggeberBeguenstigter {
 		t.Errorf("Expected %v, got %v", dkbRecord.AuftraggeberBeguenstigter, homebankRecord.Payee)

@@ -101,7 +101,7 @@ func convertFile(inputfile *os.File, outputfile *os.File) {
 	}
 
 	for _, record := range DkbRecords {
-		NewRecord := convertFromDkb(record)
+		NewRecord := convertFromDkbGiro(record)
 		HomebankRecords = append(HomebankRecords, &NewRecord)
 	}
 
@@ -123,7 +123,7 @@ func seekToStart(r *csv.Reader) {
 	}
 }
 
-func convertFromDkb(DkbRecord *dkbCsv) homebankCsv {
+func convertFromDkbGiro(DkbRecord *dkbCsv) homebankCsv {
 
 	paymentTypes := map[string]string{
 		"abschluss":                 "0",
