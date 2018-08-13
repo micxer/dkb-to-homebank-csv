@@ -7,62 +7,62 @@ import (
 	"testing"
 )
 
-func TestPaymentTypeAbschluss(t *testing.T) {
+func TestGiroPaymentTypeAbschluss(t *testing.T) {
 	assertPaymentType(t, "ABSCHLUSS", "0")
 }
 
-func TestLohnGehaltRente(t *testing.T) {
+func TestGiroLohnGehaltRente(t *testing.T) {
 	assertPaymentType(t, "LOHN, GEHALT, RENTE", "4")
 }
 
-func TestOnlineÜberweisung(t *testing.T) {
+func TestGiroOnlineÜberweisung(t *testing.T) {
 	assertPaymentType(t, "ONLINE-UEBERWEISUNG", "4")
 }
 
-func TestÜberweisung(t *testing.T) {
+func TestGiroÜberweisung(t *testing.T) {
 	assertPaymentType(t, "ÜBERWEISUNG", "4")
 }
 
-func TestRueckÜberweisung(t *testing.T) {
+func TestGiroRueckÜberweisung(t *testing.T) {
 	assertPaymentType(t, "RÜCKÜBERWEISUNG", "4")
 }
 
-func TestWertpapiere(t *testing.T) {
+func TestGiroWertpapiere(t *testing.T) {
 	assertPaymentType(t, "WERTPAPIERE", "4")
 }
 
-func TestOnlineZinsDividende(t *testing.T) {
+func TestGiroOnlineZinsDividende(t *testing.T) {
 	assertPaymentType(t, "ZINS/DIVIDENDE", "4")
 }
 
-func TestAuftrag(t *testing.T) {
+func TestGiroAuftrag(t *testing.T) {
 	assertPaymentType(t, "AUFTRAG", "5")
 }
-func TestUmbuchung(t *testing.T) {
+func TestGiroUmbuchung(t *testing.T) {
 	assertPaymentType(t, "UMBUCHUNG", "5")
 }
 
-func TestKartenzahlungAbrechnung(t *testing.T) {
+func TestGiroKartenzahlungAbrechnung(t *testing.T) {
 	assertPaymentType(t, "KARTENZAHLUNG/-ABRECHNUNG", "6")
 }
 
-func TestSepaElvLastschrift(t *testing.T) {
+func TestGiroSepaElvLastschrift(t *testing.T) {
 	assertPaymentType(t, "SEPA-ELV-LASTSCHRIFT", "6")
 }
 
-func TestDauerauftrag(t *testing.T) {
+func TestGiroDauerauftrag(t *testing.T) {
 	assertPaymentType(t, "DAUERAUFTRAG", "7")
 }
 
-func TestGutschrift(t *testing.T) {
+func TestGiroGutschrift(t *testing.T) {
 	assertPaymentType(t, "GUTSCHRIFT", "8")
 }
 
-func TestLastschrift(t *testing.T) {
+func TestGiroLastschrift(t *testing.T) {
 	assertPaymentType(t, "LASTSCHRIFT", "11")
 }
 
-func TestFolgeLastschrift(t *testing.T) {
+func TestGiroFolgeLastschrift(t *testing.T) {
 	assertPaymentType(t, "FOLGELASTSCHRIFT", "11")
 }
 
@@ -77,7 +77,7 @@ func assertPaymentType(t *testing.T, paymentString string, expectedValue string)
 	}
 }
 
-func TestIbanBicVsKontoNrBlz(t *testing.T) {
+func TestGiroIbanBicVsKontoNrBlz(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	dkbRecord.Kontonummer = "0000202051"
 	dkbRecord.Blz = "12030000"
@@ -98,7 +98,7 @@ func TestIbanBicVsKontoNrBlz(t *testing.T) {
 	}
 }
 
-func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
+func TestGiroGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	dkbRecord.GlaeubigerID = "DE0012345678"
 	dkbRecord.Kundenreferenz = "00012345"
@@ -140,7 +140,7 @@ func TestGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 	}
 }
 
-func TestCategoryEmpty(t *testing.T) {
+func TestGiroCategoryEmpty(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
@@ -149,7 +149,7 @@ func TestCategoryEmpty(t *testing.T) {
 	}
 }
 
-func TestTagsEmpty(t *testing.T) {
+func TestGiroTagsEmpty(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
@@ -158,7 +158,7 @@ func TestTagsEmpty(t *testing.T) {
 	}
 }
 
-func TestAmount(t *testing.T) {
+func TestGiroAmount(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	dkbRecord.BetragEur = "12,34"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
@@ -168,7 +168,7 @@ func TestAmount(t *testing.T) {
 	}
 }
 
-func TestMemo(t *testing.T) {
+func TestGiroMemo(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	dkbRecord.Verwendungszweck = "This is a test!"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
@@ -178,7 +178,7 @@ func TestMemo(t *testing.T) {
 	}
 }
 
-func TestPayee(t *testing.T) {
+func TestGiroPayee(t *testing.T) {
 	dkbRecord := dkbGiroCsv{}
 	dkbRecord.AuftraggeberBeguenstigter = "The Shop"
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
