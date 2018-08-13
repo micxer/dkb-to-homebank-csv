@@ -219,6 +219,17 @@ func TestDetectFiletype(t *testing.T) {
 	if filetype != "GIRO_CSV" {
 		t.Errorf("Expected %v, got %v", "GIRO_CSV", filetype)
 	}
+
+	inputfile, err = os.Open("test_csvs/bullshit.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer inputfile.Close()
+	filetype = detectFiletype(inputfile)
+	if filetype != "FILETYPE_UNKNOWN" {
+		t.Errorf("Expected %v, got %v", "FILETYPE_UNKNOWN", filetype)
+	}
+
 }
 
 func TestCreditTransactionCleared(t *testing.T) {
