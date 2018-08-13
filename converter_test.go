@@ -16,7 +16,6 @@ func TestGiroDate(t *testing.T) {
 	if homebankRecord.Date != dkbRecord.Wertstellung {
 		t.Errorf("Expected %v, got %v", dkbRecord.Wertstellung, homebankRecord.Date)
 	}
-
 }
 
 func TestGiroPaymentTypeAbschluss(t *testing.T) {
@@ -219,5 +218,93 @@ func TestDetectFiletype(t *testing.T) {
 	filetype = detectFiletype(inputfile)
 	if filetype != "GIRO_CSV" {
 		t.Errorf("Expected %v, got %v", "GIRO_CSV", filetype)
+	}
+}
+
+func TestCreditTransactionCleared(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.UmsatzAbgerechnet = "Nein"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord != nil {
+		t.Errorf("Expected empty struct, got %v", homebankRecord)
+	}
+
+	dkbRecord.UmsatzAbgerechnet = ""
+	dkbRecord.UmsatzAbgerechnetOld = "Nein"
+	homebankRecord = convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord != nil {
+		t.Errorf("Expected empty struct, got %v", homebankRecord)
+	}
+}
+
+func TestCreditPayee(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.Beschreibung = "AMAZON MKTPLACE PMTSAMAZON.COM"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Payee != dkbRecord.Beschreibung {
+		t.Errorf("Expected %v, got %v", dkbRecord.Beschreibung, homebankRecord.Payee)
+	}
+
+	dkbRecord.Beschreibung = ""
+	dkbRecord.Umsatzbeschreibung = "Lidl Vertriebs GmbH & Co"
+	homebankRecord = convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Payee != dkbRecord.Umsatzbeschreibung {
+		t.Errorf("Expected %v, got %v", dkbRecord.Umsatzbeschreibung, homebankRecord.Payee)
+	}
+}
+
+func TestCreditAmount(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.BetragEur = "-11,04"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Amount != dkbRecord.BetragEur {
+		t.Errorf("Expected %v, got %v", dkbRecord.BetragEur, homebankRecord.Amount)
+	}
+}
+
+func TestCreditInfo(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.UrspruenglicherBetrag = "-123,00 SEK"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Info != dkbRecord.UrspruenglicherBetrag {
+		t.Errorf("Expected %v, got %v", dkbRecord.UrspruenglicherBetrag, homebankRecord.Info)
+	}
+}
+
+func TestCreditPayment(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.UmsatzAbgerechnet = "Ja"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Payment != "1" {
+		t.Errorf("Payment type should be 1, found %v", homebankRecord.Payment)
+	}
+}
+
+func TestCreditDate(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.Wertstellung = "1.2.12"
+	dkbRecord.Belegdatum = "1.3.12"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Date != dkbRecord.Wertstellung {
+		t.Errorf("Expected %v, got %v", dkbRecord.Wertstellung, homebankRecord.Date)
+	}
+}
+
+func TestCreditMemo(t *testing.T) {
+	dkbRecord := dkbCreditCsv{}
+	dkbRecord.Wertstellung = "1.2.12"
+	dkbRecord.Belegdatum = "1.3.12"
+	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Memo != "Belegedatum: "+dkbRecord.Belegdatum {
+		t.Errorf("Expected %v, got %v", dkbRecord.Belegdatum, homebankRecord.Memo)
 	}
 }

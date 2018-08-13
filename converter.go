@@ -43,6 +43,17 @@ type dkbGiroCsv struct {
 	Kundenreferenz            string `csv:"Kundenreferenz"`
 }
 
+type dkbCreditCsv struct {
+	UmsatzAbgerechnet     string `csv:"Umsatz abgerechnet und nicht im Saldo enthalten"`
+	UmsatzAbgerechnetOld  string `csv:"Umsatz abgerechnet"`
+	Wertstellung          string `csv:"Wertstellung"`
+	Belegdatum            string `csv:"Belegdatum"`
+	Beschreibung          string `csv:"Beschreibung"`
+	Umsatzbeschreibung    string `csv:"Umsatzbeschreibung"`
+	BetragEur             string `csv:"Betrag (EUR)"`
+	UrspruenglicherBetrag string `csv:"Ursprünglicher Betrag"`
+}
+
 type homebankCsv struct {
 	Date     string `csv:"date"`
 	Payment  string `csv:"payment"`
@@ -190,4 +201,24 @@ func convertFromDkbGiro(DkbRecord *dkbGiroCsv) homebankCsv {
 	result.Tags = ""
 
 	return result
+}
+
+func convertFromDkbCredit(DkbRecord *dkbCreditCsv) *homebankCsv {
+	if DkbRecord.UmsatzAbgerechnet == "Nein" || DkbRecord.UmsatzAbgerechnetOld == "Nein" {
+		return nil
+	}
+
+	result := homebankCsv{}
+	result.Date = DkbRecord.Wertstellung
+	result.Payment = "1"
+	if DkbRecord.Beschreibung != "" {
+		result.Payee = DkbRecord.Beschreibung
+	} else {
+		result.Payee = DkbRecord.Umsatzbeschreibung
+	}
+	result.Amount = DkbRecord.BetragEur
+	result.Info = DkbRecord.UrspruenglicherBetrag
+	result.Memo = "Belegedatum: " + DkbRecord.Belegdatum
+
+	return &result
 }
