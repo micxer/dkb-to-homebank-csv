@@ -7,6 +7,18 @@ import (
 	"testing"
 )
 
+func TestGiroDate(t *testing.T) {
+	dkbRecord := dkbGiroCsv{}
+	dkbRecord.Wertstellung = "23.12.12"
+
+	homebankRecord := convertFromDkbGiro(&dkbRecord)
+
+	if homebankRecord.Date != dkbRecord.Wertstellung {
+		t.Errorf("Expected %v, got %v", dkbRecord.Wertstellung, homebankRecord.Date)
+	}
+
+}
+
 func TestGiroPaymentTypeAbschluss(t *testing.T) {
 	assertPaymentType(t, "ABSCHLUSS", "0")
 }
