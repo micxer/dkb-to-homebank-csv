@@ -217,8 +217,10 @@ func convertFromDkbCredit(DkbRecord *dkbCreditCsv) *homebankCsv {
 	} else {
 		result.Payee = DkbRecord.Umsatzbeschreibung
 	}
-	result.Amount = DkbRecord.BetragEur
 	result.Memo = DkbRecord.UrspruenglicherBetrag
+	result.Amount = DkbRecord.BetragEur
+	result.Category = ""
+	result.Tags = ""
 
 	return &result
 }
