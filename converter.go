@@ -211,14 +211,14 @@ func convertFromDkbCredit(DkbRecord *dkbCreditCsv) *homebankCsv {
 	result := homebankCsv{}
 	result.Date = DkbRecord.Wertstellung
 	result.Payment = "1"
+	result.Info = "Belegedatum: " + DkbRecord.Belegdatum
 	if DkbRecord.Beschreibung != "" {
 		result.Payee = DkbRecord.Beschreibung
 	} else {
 		result.Payee = DkbRecord.Umsatzbeschreibung
 	}
 	result.Amount = DkbRecord.BetragEur
-	result.Info = DkbRecord.UrspruenglicherBetrag
-	result.Memo = "Belegedatum: " + DkbRecord.Belegdatum
+	result.Memo = DkbRecord.UrspruenglicherBetrag
 
 	return &result
 }

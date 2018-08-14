@@ -278,13 +278,13 @@ func TestCreditAmount(t *testing.T) {
 	}
 }
 
-func TestCreditInfo(t *testing.T) {
+func TestCreditMemo(t *testing.T) {
 	dkbRecord := dkbCreditCsv{}
 	dkbRecord.UrspruenglicherBetrag = "-123,00 SEK"
 	homebankRecord := convertFromDkbCredit(&dkbRecord)
 
-	if homebankRecord.Info != dkbRecord.UrspruenglicherBetrag {
-		t.Errorf("Expected %v, got %v", dkbRecord.UrspruenglicherBetrag, homebankRecord.Info)
+	if homebankRecord.Memo != dkbRecord.UrspruenglicherBetrag {
+		t.Errorf("Expected %v, got %v", dkbRecord.UrspruenglicherBetrag, homebankRecord.Memo)
 	}
 }
 
@@ -309,13 +309,13 @@ func TestCreditDate(t *testing.T) {
 	}
 }
 
-func TestCreditMemo(t *testing.T) {
+func TestCreditInfo(t *testing.T) {
 	dkbRecord := dkbCreditCsv{}
 	dkbRecord.Wertstellung = "1.2.12"
 	dkbRecord.Belegdatum = "1.3.12"
 	homebankRecord := convertFromDkbCredit(&dkbRecord)
 
-	if homebankRecord.Memo != "Belegedatum: "+dkbRecord.Belegdatum {
-		t.Errorf("Expected %v, got %v", dkbRecord.Belegdatum, homebankRecord.Memo)
+	if homebankRecord.Info != "Belegedatum: "+dkbRecord.Belegdatum {
+		t.Errorf("Expected %v, got %v", dkbRecord.Belegdatum, homebankRecord.Info)
 	}
 }
