@@ -71,7 +71,7 @@ func init() {
 
 	config = &configuration{}
 
-	flag.StringVar(&config.InputFilename, "input", "", "Input CSV file in DKB format")
+	flag.StringVar(&config.InputFilename, "input", "", "Input CSV file in DKB format (Giro or Creditcard")
 	flag.StringVar(&config.OutputFilename, "output", "", "Output CSV file in Homebank format")
 }
 
@@ -79,7 +79,9 @@ func main() {
 	flag.Parse()
 
 	if config.InputFilename == "" || config.OutputFilename == "" {
-		log.Fatalln("Input and output file must be given")
+		log.Errorln("Input and output file must be given")
+		flag.Usage()
+		os.Exit(1)
 	}
 
 	inputfile, err := os.Open(config.InputFilename)
