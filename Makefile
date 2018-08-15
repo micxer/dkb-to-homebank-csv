@@ -19,7 +19,8 @@ help:
 build:
 	@echo "building ${BIN_NAME}"
 	@echo "GOPATH=${GOPATH}"
-	go build converter.go
+	go test
+	go build -o ${BIN_NAME} converter.go
 
 get-deps:
 	dep ensure
