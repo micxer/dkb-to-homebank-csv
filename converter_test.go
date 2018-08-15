@@ -237,7 +237,7 @@ func TestCreditTransactionCleared(t *testing.T) {
 	dkbRecord.UmsatzAbgerechnet = "Nein"
 	homebankRecord := convertFromDkbCredit(&dkbRecord)
 
-	if homebankRecord != nil {
+	if homebankRecord.Date != "" {
 		t.Errorf("Expected empty struct, got %v", homebankRecord)
 	}
 
@@ -245,7 +245,7 @@ func TestCreditTransactionCleared(t *testing.T) {
 	dkbRecord.UmsatzAbgerechnetOld = "Nein"
 	homebankRecord = convertFromDkbCredit(&dkbRecord)
 
-	if homebankRecord != nil {
+	if homebankRecord.Date != "" {
 		t.Errorf("Expected empty struct, got %v", homebankRecord)
 	}
 }
