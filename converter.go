@@ -86,13 +86,13 @@ func main() {
 
 	inputfile, err := os.Open(config.InputFilename)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	defer inputfile.Close()
 
 	outputfile, err := os.OpenFile(config.OutputFilename, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	defer outputfile.Close()
 
