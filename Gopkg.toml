@@ -28,7 +28,7 @@
 # [[constraint]]
 #   name = "encoding/csv"
 
-required = ["github.com/gocarina/gocsv", "golang.org/x/text/encoding/charmap", "golang.org/x/text/transform"]
+required = ["github.com/gocarina/gocsv", "golang.org/x/text/encoding/charmap", "golang.org/x/text/transform", "github.com/sirupsen/logrus"]
 
 [[constraint]]
   name = "github.com/gocarina/gocsv"
@@ -37,6 +37,10 @@ required = ["github.com/gocarina/gocsv", "golang.org/x/text/encoding/charmap", "
 [[constraint]]
   name = "golang.org/x/text"
   version = "v0.3.0"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "v1.0.6 "
 
 [prune]
   go-tests = true

@@ -12,12 +12,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/gocarina/gocsv"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
 )
@@ -66,6 +66,9 @@ type homebankCsv struct {
 }
 
 func init() {
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.DebugLevel)
+
 	config = &configuration{}
 
 	flag.StringVar(&config.InputFilename, "input", "", "Input CSV file in DKB format")
