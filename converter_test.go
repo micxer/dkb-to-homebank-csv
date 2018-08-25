@@ -232,24 +232,6 @@ func TestDetectFiletype(t *testing.T) {
 
 }
 
-func TestCreditTransactionCleared(t *testing.T) {
-	dkbRecord := dkbCreditCsv{}
-	dkbRecord.UmsatzAbgerechnet = "Nein"
-	homebankRecord := convertFromDkbCredit(&dkbRecord)
-
-	if homebankRecord.Date != "" {
-		t.Errorf("Expected empty struct, got %v", homebankRecord)
-	}
-
-	dkbRecord.UmsatzAbgerechnet = ""
-	dkbRecord.UmsatzAbgerechnetOld = "Nein"
-	homebankRecord = convertFromDkbCredit(&dkbRecord)
-
-	if homebankRecord.Date != "" {
-		t.Errorf("Expected empty struct, got %v", homebankRecord)
-	}
-}
-
 func TestCreditPayee(t *testing.T) {
 	dkbRecord := dkbCreditCsv{}
 	dkbRecord.Beschreibung = "AMAZON MKTPLACE PMTSAMAZON.COM"
@@ -290,8 +272,16 @@ func TestCreditMemo(t *testing.T) {
 
 func TestCreditPayment(t *testing.T) {
 	dkbRecord := dkbCreditCsv{}
-	dkbRecord.UmsatzAbgerechnet = "Ja"
+	dkbRecord.UmsatzAbgerechnet = "Nein"
+	dkbRecord.Wertstellung = "01.02.2018"
 	homebankRecord := convertFromDkbCredit(&dkbRecord)
+
+	if homebankRecord.Date != "01.02.2018" {
+		t.Errorf("Date should be '01.02.2018', found %v", homebankRecord.Date)
+	}
+
+	dkbRecord.UmsatzAbgerechnet = "Ja"
+	homebankRecord = convertFromDkbCredit(&dkbRecord)
 
 	if homebankRecord.Payment != "1" {
 		t.Errorf("Payment type should be 1, found %v", homebankRecord.Payment)

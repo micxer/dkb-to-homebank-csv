@@ -211,10 +211,6 @@ func convertFromDkbGiro(DkbRecord *dkbGiroCsv) homebankCsv {
 func convertFromDkbCredit(DkbRecord *dkbCreditCsv) homebankCsv {
 	result := homebankCsv{}
 
-	if DkbRecord.UmsatzAbgerechnet == "Nein" || DkbRecord.UmsatzAbgerechnetOld == "Nein" {
-		return result
-	}
-
 	result.Date = DkbRecord.Wertstellung
 	result.Payment = "1"
 	result.Info = "Belegedatum: " + DkbRecord.Belegdatum
