@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017-2018, Michael Weinrich
+ * Copyright (c) 2017-2020, Michael Weinrich
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -16,7 +16,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gocarina/gocsv"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
@@ -30,44 +29,47 @@ type configuration struct {
 var config *configuration
 
 type dkbGiroCsv struct {
-	Buchungstag               string `csv:"Buchungstag"`
-	Wertstellung              string `csv:"Wertstellung"`
-	Buchungstext              string `csv:"Buchungstext"`
-	AuftraggeberBeguenstigter string `csv:"Auftraggeber / Begünstigter"`
-	Verwendungszweck          string `csv:"Verwendungszweck"`
-	Kontonummer               string `csv:"Kontonummer"`
-	Blz                       string `csv:"BLZ"`
-	BetragEur                 string `csv:"Betrag (EUR)"`
-	GlaeubigerID              string `csv:"Gläubiger-ID"`
-	Mandatsreferenz           string `csv:"Mandatsreferenz"`
-	Kundenreferenz            string `csv:"Kundenreferenz"`
+	AuftraggeberBeguenstigter string
+	BetragEur                 string
+	Blz                       string
+	Buchungstag               string
+	Buchungstext              string
+	GlaeubigerID              string
+	Kontonummer               string
+	Kundenreferenz            string
+	Mandatsreferenz           string
+	Verwendungszweck          string
+	Wertstellung              string
 }
 
 type dkbCreditCsv struct {
-	UmsatzAbgerechnet     string `csv:"Umsatz abgerechnet und nicht im Saldo enthalten"`
-	UmsatzAbgerechnetOld  string `csv:"Umsatz abgerechnet"`
-	Wertstellung          string `csv:"Wertstellung"`
-	Belegdatum            string `csv:"Belegdatum"`
-	Beschreibung          string `csv:"Beschreibung"`
-	Umsatzbeschreibung    string `csv:"Umsatzbeschreibung"`
-	BetragEur             string `csv:"Betrag (EUR)"`
-	UrspruenglicherBetrag string `csv:"Ursprünglicher Betrag"`
+	Belegdatum            string
+	Beschreibung          string
+	BetragEur             string
+	UmsatzAbgerechnet     string
+	UrspruenglicherBetrag string
+	Wertstellung          string
 }
 
 type homebankCsv struct {
-	Date     string `csv:"date"`
-	Payment  string `csv:"payment"`
-	Info     string `csv:"info"`
-	Payee    string `csv:"payee"`
-	Memo     string `csv:"memo"`
-	Amount   string `csv:"amount"`
-	Category string `csv:"category"`
-	Tags     string `csv:"tags"`
+	Date     string
+	Payment  string
+	Info     string
+	Payee    string
+	Memo     string
+	Amount   string
+	Category string
+	Tags     string
 }
 
 func init() {
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.DebugLevel)
+	log.SetLevel(log.WarnLevel)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp:          true,
+		DisableLevelTruncation: true,
+		QuoteEmptyFields:       true,
+	})
 
 	config = &configuration{}
 
@@ -95,8 +97,49 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer outputfile.Close()
+	homebankRecords := convertFile(inputfile)
+	writeHomebankFile(homebankRecords, outputfile)
+}
 
-	convertFile(inputfile, outputfile)
+func convertFile(inputfile *os.File) []*homebankCsv {
+
+	fileType := detectFiletype(inputfile)
+	homebankRecords := []*homebankCsv{}
+
+	if fileType == "GIRO_CSV" {
+		homebankRecords = processGiroFile(inputfile)
+	}
+	if fileType == "CREDIT_CSV" {
+		homebankRecords = processCreditFile(inputfile)
+	}
+
+	return homebankRecords
+}
+
+func (h homebankCsv) getRecord() []string {
+	record := make([]string, 8)
+
+	record[0] = h.Date
+	record[1] = h.Payment
+	record[2] = h.Info
+	record[3] = h.Payee
+	record[4] = h.Memo
+	record[5] = h.Amount
+	record[6] = h.Category
+	record[7] = h.Tags
+
+	return record
+}
+
+func writeHomebankFile(homebankRecords []*homebankCsv, outputfile *os.File) {
+	outputfile.WriteString("\"" + strings.Join([]string{"date", "paymode", "info", "payee", "memo", "amount", "category", "tags"}, "\";\"") + "\"\n")
+
+	for _, homebankRecord := range homebankRecords {
+		csvRecord := homebankRecord.getRecord()
+		if _, err := outputfile.WriteString("\"" + strings.Join(csvRecord, "\";\"") + "\"\n"); err != nil {
+			log.Fatal("error writing record to csv:", err)
+		}
+	}
 }
 
 func detectFiletype(inputfile *os.File) string {
@@ -106,57 +149,151 @@ func detectFiletype(inputfile *os.File) string {
 	if err == io.EOF || err != nil {
 		log.Fatal(err)
 	}
+	inputfile.Seek(0, 0)
 	if record[0] == "Kreditkarte:" {
+		log.Info("Detected file format: CREDIT_CSV")
 		return "CREDIT_CSV"
 	}
 	if record[0] == "Kontonummer:" {
+		log.Info("Detected file format: GIRO_CSV")
 		return "GIRO_CSV"
 	}
 
+	log.Warning("Unknown filetype")
 	return "FILETYPE_UNKNOWN"
 }
 
-func convertFile(inputfile *os.File, outputfile *os.File) {
-	DkbRecords := []*dkbGiroCsv{}
-	HomebankRecords := []*homebankCsv{}
+func processGiroFile(inputfile *os.File) []*homebankCsv {
+	homebankRecords := []*homebankCsv{}
 
-	gocsv.SetCSVReader(func(in io.Reader) gocsv.CSVReader {
-		reader := csv.NewReader(transform.NewReader(in, charmap.ISO8859_15.NewDecoder()))
-		reader.TrimLeadingSpace = true
-		reader.Comma = ';'
-		reader.FieldsPerRecord = -1
-		seekToStart(reader)
-		return reader
-	})
+	dkbRecords := readGiroFile(inputfile)
 
-	if err := gocsv.UnmarshalFile(inputfile, &DkbRecords); err != nil {
-		log.Fatal(err)
+	for _, record := range dkbRecords {
+		newRecord := convertFromDkbGiro(record)
+		log.Debugf("processGiroFile(): %v", newRecord)
+		homebankRecords = append(homebankRecords, &newRecord)
 	}
 
-	for _, record := range DkbRecords {
-		NewRecord := convertFromDkbGiro(record)
-		HomebankRecords = append(HomebankRecords, &NewRecord)
-	}
-
-	// TODO: Homebank wants to have values enclosed in quotes
-	gocsv.SetCSVWriter(func(out io.Writer) *gocsv.SafeCSVWriter {
-		writer := csv.NewWriter(out)
-		writer.Comma = ';'
-		return gocsv.NewSafeCSVWriter(writer)
-	})
-
-	if err := gocsv.MarshalFile(&HomebankRecords, outputfile); err != nil {
-		log.Fatal(err)
-	}
+	return homebankRecords
 }
 
-func seekToStart(r *csv.Reader) {
-	for i := 0; i < 4; i++ {
-		_, _ = r.Read()
+func processCreditFile(inputfile *os.File) []*homebankCsv {
+	homebankRecords := []*homebankCsv{}
+
+	dkbRecords := readCreditFile(inputfile)
+
+	for _, record := range dkbRecords {
+		newRecord := convertFromDkbCredit(record)
+		log.Debugf("processCreditFile(): %v", newRecord)
+		if newRecord.Date != "" {
+			homebankRecords = append(homebankRecords, &newRecord)
+		}
 	}
+
+	return homebankRecords
 }
 
-func convertFromDkbGiro(DkbRecord *dkbGiroCsv) homebankCsv {
+func readGiroFile(input io.Reader) []*dkbGiroCsv {
+	dkbRecords := []*dkbGiroCsv{}
+
+	firstLineFound := false
+
+	reader := getCsvReader(input)
+	for {
+		csvRecord, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if !firstLineFound {
+			if csvRecord[0] == "Buchungstag" {
+				firstLineFound = true
+			}
+			continue
+		}
+
+		log.Debugf("readGiroFile(): %v", csvRecord)
+
+		dkbRecords = append(dkbRecords, mapGiroCsvToStruct(csvRecord))
+	}
+
+	return dkbRecords
+}
+
+func readCreditFile(input io.Reader) []*dkbCreditCsv {
+	dkbRecords := []*dkbCreditCsv{}
+
+	firstLineFound := false
+
+	reader := getCsvReader(input)
+	for {
+		csvRecord, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if !firstLineFound {
+			if strings.HasPrefix(csvRecord[0], "Umsatz abgerechnet") {
+				firstLineFound = true
+			}
+			continue
+		}
+
+		log.Debugf("readCreditFile(): %v", csvRecord)
+
+		dkbRecords = append(dkbRecords, mapCreditCsvToStruct(csvRecord))
+	}
+
+	return dkbRecords
+}
+
+func mapGiroCsvToStruct(csvRecord []string) *dkbGiroCsv {
+	dkbRecord := dkbGiroCsv{}
+
+	dkbRecord.Buchungstag = csvRecord[0]
+	dkbRecord.Wertstellung = csvRecord[1]
+	dkbRecord.Buchungstext = csvRecord[2]
+	dkbRecord.AuftraggeberBeguenstigter = csvRecord[3]
+	dkbRecord.Verwendungszweck = csvRecord[4]
+	dkbRecord.Kontonummer = csvRecord[5]
+	dkbRecord.Blz = csvRecord[6]
+	dkbRecord.BetragEur = csvRecord[7]
+	dkbRecord.GlaeubigerID = csvRecord[8]
+	dkbRecord.Mandatsreferenz = csvRecord[9]
+	dkbRecord.Kundenreferenz = csvRecord[10]
+
+	return &dkbRecord
+}
+
+func mapCreditCsvToStruct(csvRecord []string) *dkbCreditCsv {
+	dkbRecord := dkbCreditCsv{}
+
+	dkbRecord.UmsatzAbgerechnet = csvRecord[0]
+	dkbRecord.Wertstellung = csvRecord[1]
+	dkbRecord.Belegdatum = csvRecord[2]
+	dkbRecord.Beschreibung = csvRecord[3]
+	dkbRecord.BetragEur = csvRecord[4]
+	dkbRecord.UrspruenglicherBetrag = csvRecord[5]
+
+	return &dkbRecord
+}
+
+func getCsvReader(input io.Reader) *csv.Reader {
+	reader := csv.NewReader(transform.NewReader(input, charmap.ISO8859_15.NewDecoder()))
+	reader.TrimLeadingSpace = true
+	reader.Comma = ';'
+	reader.FieldsPerRecord = -1
+
+	return reader
+}
+
+func convertFromDkbGiro(dkbRecord *dkbGiroCsv) homebankCsv {
 
 	paymentTypes := map[string]string{
 		"abschluss":                 "0",
@@ -177,31 +314,31 @@ func convertFromDkbGiro(DkbRecord *dkbGiroCsv) homebankCsv {
 	}
 
 	result := homebankCsv{}
-	result.Date = DkbRecord.Wertstellung
-	result.Payment = paymentTypes[strings.ToLower(DkbRecord.Buchungstext)]
+	result.Date = dkbRecord.Wertstellung
+	result.Payment = paymentTypes[strings.ToLower(dkbRecord.Buchungstext)]
 	info := ""
-	if DkbRecord.Kontonummer != "" {
-		_, err := strconv.ParseFloat(DkbRecord.Kontonummer, 64)
+	if dkbRecord.Kontonummer != "" {
+		_, err := strconv.ParseFloat(dkbRecord.Kontonummer, 64)
 		if err != nil {
-			info = info + fmt.Sprintf("IBAN: %v, BIC: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+			info = info + fmt.Sprintf("IBAN: %v, BIC: %v,", dkbRecord.Kontonummer, dkbRecord.Blz)
 		} else {
-			info = info + fmt.Sprintf("Konto-Nr.: %v, BLZ: %v\n", DkbRecord.Kontonummer, DkbRecord.Blz)
+			info = info + fmt.Sprintf("Konto-Nr.: %v, BLZ: %v,", dkbRecord.Kontonummer, dkbRecord.Blz)
 		}
 	}
-	if DkbRecord.GlaeubigerID != "" {
-		info = info + fmt.Sprintf("Gläubiger-ID: %v\n", DkbRecord.GlaeubigerID)
+	if dkbRecord.GlaeubigerID != "" {
+		info = info + fmt.Sprintf("Gläubiger-ID: %v, ", dkbRecord.GlaeubigerID)
 	}
-	if DkbRecord.Mandatsreferenz != "" {
-		info = info + fmt.Sprintf("Mandatsreferenz: %v\n", DkbRecord.Mandatsreferenz)
+	if dkbRecord.Mandatsreferenz != "" {
+		info = info + fmt.Sprintf("Mandatsreferenz: %v, ", dkbRecord.Mandatsreferenz)
 	}
-	if DkbRecord.Kundenreferenz != "" {
-		info = info + fmt.Sprintf("Kundenreferenz: %v\n", DkbRecord.Kundenreferenz)
+	if dkbRecord.Kundenreferenz != "" {
+		info = info + fmt.Sprintf("Kundenreferenz: %v, ", dkbRecord.Kundenreferenz)
 	}
-	result.Info = strings.TrimSpace(info)
+	result.Info = strings.TrimSuffix(strings.TrimSpace(info), ",")
 
-	result.Payee = DkbRecord.AuftraggeberBeguenstigter
-	result.Memo = DkbRecord.Verwendungszweck
-	result.Amount = DkbRecord.BetragEur
+	result.Payee = dkbRecord.AuftraggeberBeguenstigter
+	result.Memo = dkbRecord.Verwendungszweck
+	result.Amount = dkbRecord.BetragEur
 	result.Category = ""
 	result.Tags = ""
 
@@ -214,11 +351,7 @@ func convertFromDkbCredit(DkbRecord *dkbCreditCsv) homebankCsv {
 	result.Date = DkbRecord.Wertstellung
 	result.Payment = "1"
 	result.Info = "Belegedatum: " + DkbRecord.Belegdatum
-	if DkbRecord.Beschreibung != "" {
-		result.Payee = DkbRecord.Beschreibung
-	} else {
-		result.Payee = DkbRecord.Umsatzbeschreibung
-	}
+	result.Payee = DkbRecord.Beschreibung
 	result.Memo = DkbRecord.UrspruenglicherBetrag
 	result.Amount = DkbRecord.BetragEur
 	result.Category = ""
