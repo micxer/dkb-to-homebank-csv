@@ -1,6 +1,6 @@
 TEST?=./...
 
-.PHONY: default help build get-deps clean tests
+.PHONY: default help tidy build clean tests
 
 BIN_NAME=dkb2homebank
 
@@ -11,7 +11,7 @@ help:
 	@echo
 	@echo 'Usage:'
 	@echo '    make build           Compile the project.'
-	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
+	@echo '    make tidy            Runs go mod tidy, mostly used for ci.'
 	@echo '    make test            Run tests on a compiled project.'
 	@echo '    make clean           Clean the directory tree.'
 	@echo
@@ -22,8 +22,8 @@ build:
 	go test
 	go build -o ${BIN_NAME} converter.go
 
-get-deps:
-	dep ensure
+tidy:
+	go mod tidy
 
 clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
