@@ -116,10 +116,10 @@ func TestGiroGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 
 	homebankRecord := convertFromDkbGiro(&dkbRecord)
 
-	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nKundenreferenz: 00012345" {
+	if homebankRecord.Info != "Gläubiger-ID: DE0012345678, Kundenreferenz: 00012345" {
 		t.Errorf(
 			"Expected %v, got %v",
-			"Gläubiger-ID: DE0012345678\nKundenreferenz: 00012345\n",
+			"Gläubiger-ID: DE0012345678, Kundenreferenz: 00012345",
 			homebankRecord.Info,
 		)
 	}
@@ -130,10 +130,10 @@ func TestGiroGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 
 	homebankRecord = convertFromDkbGiro(&dkbRecord)
 
-	if homebankRecord.Info != "Mandatsreferenz: MAN007\nKundenreferenz: 00012345" {
+	if homebankRecord.Info != "Mandatsreferenz: MAN007, Kundenreferenz: 00012345" {
 		t.Errorf(
 			"Expected %v, got %v",
-			"Mandatsreferenz: MAN007\nKundenreferenz: 00012345",
+			"Mandatsreferenz: MAN007, Kundenreferenz: 00012345",
 			homebankRecord.Info,
 		)
 	}
@@ -142,10 +142,10 @@ func TestGiroGlaeubigerIdMandatsreferenzKundenreferenz(t *testing.T) {
 
 	homebankRecord = convertFromDkbGiro(&dkbRecord)
 
-	if homebankRecord.Info != "Gläubiger-ID: DE0012345678\nMandatsreferenz: MAN007\nKundenreferenz: 00012345" {
+	if homebankRecord.Info != "Gläubiger-ID: DE0012345678, Mandatsreferenz: MAN007, Kundenreferenz: 00012345" {
 		t.Errorf(
 			"Expected %v, got %v",
-			"Gläubiger-ID: DE0012345678\nMandatsreferenz: MAN007\nKundenreferenz: 00012345",
+			"Gläubiger-ID: DE0012345678, Mandatsreferenz: MAN007, Kundenreferenz: 00012345",
 			homebankRecord.Info,
 		)
 	}
@@ -239,14 +239,6 @@ func TestCreditPayee(t *testing.T) {
 
 	if homebankRecord.Payee != dkbRecord.Beschreibung {
 		t.Errorf("Expected %v, got %v", dkbRecord.Beschreibung, homebankRecord.Payee)
-	}
-
-	dkbRecord.Beschreibung = ""
-	dkbRecord.Umsatzbeschreibung = "Lidl Vertriebs GmbH & Co"
-	homebankRecord = convertFromDkbCredit(&dkbRecord)
-
-	if homebankRecord.Payee != dkbRecord.Umsatzbeschreibung {
-		t.Errorf("Expected %v, got %v", dkbRecord.Umsatzbeschreibung, homebankRecord.Payee)
 	}
 }
 
