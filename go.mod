@@ -4,5 +4,5 @@ go 1.13
 
 require (
 	github.com/sirupsen/logrus v1.4.2
-	golang.org/x/text v0.3.0
+	golang.org/x/text v0.3.8
 )
